@@ -25,7 +25,7 @@ import {
   watchedLines,
 } from './devices.js';
 import { TEXT, lineLabel, modeName, say, sayAll } from './messages.js';
-import { STOP_ID, Tfl } from './tfl.js';
+import { SEARCH_MODES, STOP_ID, Tfl } from './tfl.js';
 import {
   aged,
   applyFilters,
@@ -103,7 +103,7 @@ export class TflService {
   constructor({ gladys, store, fetch, now = Date.now, timers = true }) {
     this.gladys = gladys;
     this.store = store;
-    this.config = { language: 'fr', refreshSeconds: 60, appKey: '' };
+    this.config = { language: 'fr', refreshSeconds: 60, appKey: '', keyRejected: false };
     this.tfl = new Tfl({ fetch, appKey: () => this.config.appKey });
     this.now = now;
     this.timers = timers;
@@ -303,9 +303,19 @@ export class TflService {
 
   refresh(options = {}) {
     if (this.inflight) {
-      // A read in progress may predate a device just created: read again after it.
-      return this.inflight.then(() => this.refresh(options));
+      // A read in progress may predate a device just created: one more read
+      // after it, shared by every caller arriving meanwhile ("Add all" on ten
+      // devices reads twice, not ten times).
+      this.queuedRepublish ||= Boolean(options.republish);
+      this.queued ??= this.inflight.then(() => {
+        const republish = this.queuedRepublish;
+        this.queued = null;
+        this.queuedRepublish = false;
+        return this.refresh({ republish });
+      });
+      return this.queued;
     }
+    this.attemptedAt = this.now();
     this.inflight = this.doRefresh(options).finally(() => {
       this.inflight = null;
     });
@@ -318,9 +328,21 @@ export class TflService {
       ...watches.flatMap((watch) => watchedLines(watch)),
     ]);
     const statuses = lineIds.size > 0 ? await this.tfl.lineStatuses([...lineIds]) : new Map();
+    // One stop point failing (a 5xx, a timeout) does not stop the others: its
+    // watches keep their last board. Every one failing is TfL down.
     const points = new Map();
-    for (const point of new Set(watches.flatMap((watch) => watch.points))) {
-      points.set(point, await this.tfl.arrivals(point));
+    const wanted = [...new Set(watches.flatMap((watch) => watch.points))];
+    let lastFailure = null;
+    for (const point of wanted) {
+      try {
+        points.set(point, await this.tfl.arrivals(point));
+      } catch (err) {
+        lastFailure = err;
+        logger.debug(`Cannot read the arrivals of ${point}: ${err.message}`);
+      }
+    }
+    if (lastFailure && points.size === 0) {
+      throw lastFailure;
     }
     return { statuses, points };
   }
@@ -358,8 +380,25 @@ export class TflService {
     for (const [id, raw] of result.statuses) {
       this.statuses.set(id, { ...parseLineStatus(raw), at: now });
     }
-    const events = lines.flatMap((line) => this.detectLine(line));
+    // A line or stop removed (or a device deleted) while TfL was read: its
+    // memories are dropped, so that coming back later is not compared with
+    // a level of long ago.
+    const created = new Set(this.createdLines().map((line) => line.id));
+    for (const id of this.levels.keys()) {
+      if (!created.has(id)) {
+        this.levels.delete(id);
+      }
+    }
+    const events = lines
+      .filter((line) => created.has(line.id))
+      .flatMap((line) => this.detectLine(line));
     for (const watch of watches) {
+      if (
+        !this.watches.includes(watch) ||
+        !watch.points.every((point) => result.points.has(point))
+      ) {
+        continue;
+      }
       const raw = watch.points.flatMap((point) => result.points.get(point) ?? []);
       const arrivals = applyFilters(parseArrivals(raw, now), watch);
       this.boards.set(watchKey(watch), { arrivals, at: now });
@@ -511,11 +550,21 @@ export class TflService {
     if (this.eventMinute !== minute) {
       this.eventMinute = minute;
       this.eventCount = 0;
+      this.dropWarned = false;
     }
-    this.eventCount += 1;
-    if (this.eventCount > EVENTS_PER_MINUTE) {
-      logger.debug(`Too many scene events this minute, ${key} dropped`);
-      return;
+    // Only the arrival events count against the budget: a line event is rare
+    // and never dropped for a busy station.
+    if (key === TRIGGERS.SOON) {
+      this.eventCount += 1;
+      if (this.eventCount > EVENTS_PER_MINUTE) {
+        if (!this.dropWarned) {
+          this.dropWarned = true;
+          logger.warn(
+            `More than ${EVENTS_PER_MINUTE} arrival events this minute: the next ones are dropped`,
+          );
+        }
+        return;
+      }
     }
     try {
       await this.gladys.publishSceneEvent(key, data);
@@ -533,9 +582,12 @@ export class TflService {
 
   /** Reads again when the device is created and its data older than two intervals. */
   async freshen(externalId, at) {
+    const interval = this.config.refreshSeconds * 1000;
     if (
       this.isCreated(externalId) &&
-      (!at || this.now() - at > this.config.refreshSeconds * 2000)
+      (!at || this.now() - at > interval * 2) &&
+      // TfL down or just tried: no read per widget load nor scene action.
+      !(this.attemptedAt && this.now() - this.attemptedAt < interval)
     ) {
       await this.refresh();
     }
@@ -589,7 +641,11 @@ export class TflService {
   /** "• Brixton Station (→ Herne Hill) · Bus [490000031E]". */
   stopLine(stop, language) {
     const towards = stop.towards ? ` (→ ${stop.towards})` : '';
-    const modes = stop.modes.map((mode) => modeName(mode, language)).join(', ');
+    // Only the TfL modes: "national-rail" has no arrivals here.
+    const modes = stop.modes
+      .filter((mode) => SEARCH_MODES.includes(mode))
+      .map((mode) => modeName(mode, language))
+      .join(', ');
     return `• ${cleanName(stop.name)}${towards}${modes ? ` · ${modes}` : ''} [${stop.id}]`;
   }
 
@@ -696,7 +752,10 @@ export class TflService {
     const id = parseStopId(name);
     const matches = this.watches.filter(
       (watch) =>
-        fold(watchName(watch)) === text || watchKey(watch) === text || (id && watch.id === id),
+        fold(watchName(watch)) === text ||
+        watchKey(watch) === text ||
+        // The id typed may be a station of a hub ("940GZZLUBXN" in "HUBBRX").
+        (id && (watch.id === id || watch.points.includes(id))),
     );
     const found = matches.length > 0 ? matches : this.watches.filter((w) => fold(w.name) === text);
     if (found.length === 0) {
@@ -791,17 +850,23 @@ export class TflService {
           out.push(`• ${watchName(watch)} [${watch.id}] — ${created(this.stopDeviceId(watch))}`);
         }
       }
-      out.push(
-        this.refreshedAt
-          ? say(TEXT, lang, 'statusRefreshed', {
-              age: Math.round((this.now() - this.refreshedAt) / 1000),
-            })
-          : say(TEXT, lang, 'statusNeverRefreshed'),
-      );
+      if (this.refreshedAt) {
+        out.push(
+          say(TEXT, lang, 'statusRefreshed', {
+            age: Math.round((this.now() - this.refreshedAt) / 1000),
+          }),
+        );
+      } else if (this.createdLines().length + this.createdWatches().length === 0) {
+        out.push(say(TEXT, lang, 'statusNeverRefreshed'));
+      }
       if (this.lastError) {
         out.push(say(TEXT, lang, 'statusError', { error: this.lastError }));
       }
-      out.push(say(TEXT, lang, this.config.appKey ? 'statusKey' : 'statusNoKey'));
+      let key = this.config.appKey ? 'statusKey' : 'statusNoKey';
+      if (this.config.keyRejected) {
+        key = 'statusKeyRejected';
+      }
+      out.push(say(TEXT, lang, key));
       return out.join('\n');
     });
   }

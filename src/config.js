@@ -18,18 +18,21 @@ export const DEFAULT_CONFIG = {
 
 /**
  * @param {Record<string, unknown>} [raw] config returned by the SDK
- * @returns {{ language: string, refreshSeconds: number, appKey: string }}
+ * @returns {{ language: string, refreshSeconds: number, appKey: string, keyRejected: boolean }}
  */
 export function normalizeConfig(raw = {}) {
   const language = LANGUAGES.includes(raw?.language) ? raw.language : DEFAULT_CONFIG.language;
   const seconds = Number(raw?.refresh_interval ?? DEFAULT_CONFIG.refresh_interval);
-  // A key is hexadecimal: anything else (spaces, a pasted label) is dropped.
+  // A key is alphanumeric: anything else (spaces, a pasted label) is not sent.
   const key = String(raw?.app_key ?? '').trim();
+  const valid = /^[A-Za-z0-9]{8,64}$/.test(key);
   return {
     language,
     refreshSeconds: REFRESH_INTERVALS.includes(seconds)
       ? seconds
       : Number(DEFAULT_CONFIG.refresh_interval),
-    appKey: /^[A-Za-z0-9]{8,64}$/.test(key) ? key : '',
+    appKey: valid ? key : '',
+    // Something was typed but is not a key: said in the status, never sent.
+    keyRejected: key !== '' && !valid,
   };
 }

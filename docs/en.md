@@ -146,7 +146,7 @@ use is limited harder. With many stops, add a free app key. See the
 
 - **“TfL cannot be reached (…HTTP 429 (quota))”**: too many requests on the anonymous quota. Add a
   free app key, or choose a 2-minute interval.
-- **“HTTP 401/403 (app_key refused)”**: the key is wrong or not subscribed to a product on the TfL
+- **“(app_key refused)”**: the key is wrong or not subscribed to a product on the TfL
   portal. Fix it, or empty the field.
 - **No arrival**: outside service hours, or a National Rail only station. Check the stop with
   _Find a stop_ and its identifier.

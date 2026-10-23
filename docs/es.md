@@ -151,7 +151,7 @@ TfL](https://tfl.gov.uk/corporate/terms-and-conditions/transport-data-service).
 
 - **«No se puede contactar con TfL (…HTTP 429 (quota))»**: demasiadas peticiones con la cuota
   anónima. Añada una clave gratuita o elija un intervalo de 2 minutos.
-- **«HTTP 401/403 (app_key refused)»**: la clave es incorrecta o no está suscrita a ningún producto
+- **«(app_key refused)»**: la clave es incorrecta o no está suscrita a ningún producto
   en el portal de TfL. Corríjala o vacíe el campo.
 - **Ninguna llegada**: fuera del horario de servicio, o una estación solo de National Rail.
   Compruebe la parada con _Buscar una parada_ y su identificador.

@@ -66,6 +66,13 @@ export class Tfl {
     }
     if (!response.ok) {
       const hint = { 401: ' (app_key refused)', 403: ' (app_key refused)', 429: ' (quota)' };
+      // TfL answers a wrong key with a 429 too, and says so in the body.
+      if (response.status === 429 && key) {
+        const body = await response.text().catch(() => '');
+        if (/invalid app_key/i.test(body)) {
+          hint[429] = ' (app_key refused)';
+        }
+      }
       throw new TflError(
         `${HOST}: HTTP ${response.status}${hint[response.status] ?? ''}`,
         response.status,

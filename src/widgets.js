@@ -95,7 +95,13 @@ async function lineStatusContent(service, { language }) {
     .map((line) => ({ line, status: service.statuses.get(line.id) }))
     .filter((entry) => entry.status)
     // The worst first, then by name.
-    .sort((a, b) => b.status.level - a.status.level || a.line.name.localeCompare(b.line.name));
+    .sort(
+      (a, b) =>
+        b.status.level - a.status.level ||
+        lineLabel(a.line, language).localeCompare(lineLabel(b.line, language), 'en', {
+          numeric: true,
+        }),
+    );
   const components = [{ type: 'text', variant: 'heading', text: t(language, 'linesHeading') }];
   if (known.length === 0) {
     components.push({ type: 'text', variant: 'body', text: t(language, 'loading') });

@@ -155,7 +155,7 @@ kostenlosen Schlüssel hinzu. Siehe die
 
 - **„TfL ist nicht erreichbar (…HTTP 429 (quota))“**: zu viele Anfragen im anonymen Kontingent.
   Füge einen kostenlosen Schlüssel hinzu oder wähle ein Intervall von 2 Minuten.
-- **„HTTP 401/403 (app_key refused)“**: der Schlüssel ist falsch oder im TfL-Portal für kein
+- **„(app_key refused)“**: der Schlüssel ist falsch oder im TfL-Portal für kein
   Produkt abonniert. Korrigiere ihn oder leere das Feld.
 - **Keine Ankunft**: außerhalb der Betriebszeiten oder eine reine National-Rail-Station. Prüfe die
   Haltestelle mit _Haltestelle suchen_ und ihrer Kennung.

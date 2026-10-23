@@ -180,6 +180,11 @@ test('search: by name, by identifier, nothing found, TfL down', async (t) => {
     /• Oxford Circus Station \(→ Marble Arch Or Great Portland Street\) · Bus \[490000173RC\]/,
   );
   assert.match(byName.de, /Haltestelle hinzufügen/);
+  // National Rail has no TfL arrivals: not listed among the modes.
+  assert.match(
+    fr(await action(world, 'search_stops', { query: 'Brixton' })),
+    /• Brixton · Bus, Métro \[HUBBRX\]/,
+  );
   const byId = await action(world, 'search_stops', { query: '940gzzluoxc' });
   assert.match(fr(byId), /1 arrêt\(s\) trouvé\(s\) :\n• Oxford Circus · Métro \[940GZZLUOXC\]/);
   assert.equal(
@@ -467,8 +472,18 @@ test('the app key goes to TfL, never to the logs nor the errors', async (t) => {
     'no key in the logs',
   );
   assert.ok(!JSON.stringify(world.fake.connectionStatus).includes(key));
-  // A malformed key is not sent at all.
+  // A wrong key: TfL answers 429 with a body that says so.
+  world.network.fail = null;
+  const fetch = world.service.tfl.fetch;
+  world.service.tfl.fetch = async () =>
+    new Response('Invalid app_key is provided.', { status: 429 });
+  world.clock.advance(60000);
+  await world.service.refresh();
+  assert.match(world.service.lastError, /HTTP 429 \(app_key refused\)/);
+  world.service.tfl.fetch = fetch;
+  // A malformed key is not sent at all, and the status says so.
   await world.fake.configUpdated({ app_key: 'not a key!' });
+  assert.match(fr(await action(world, 'status')), /Clé TfL : invalide/);
   world.network.fail = null;
   world.clock.advance(60000);
   await world.service.refresh();
@@ -650,4 +665,46 @@ test('a language change renames the devices, not their features', async (t) => {
   await action(world, 'add_line', { line: '73' });
   await world.fake.configUpdated({ language: 'es' });
   assert.equal(world.fake.discoveredDevices[0].name, 'TfL · Autobús 73');
+});
+
+test('one stop point failing keeps its last board, the others are updated', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await action(world, 'add_stop', { stop: OXFORD_CIRCUS });
+  await action(world, 'add_stop', { stop: BUS_PAIR });
+  const tube = await create(world, 'Oxford Circus');
+  const bus = await create(world, 'John Lewis');
+  const fetch = world.service.tfl.fetch;
+  world.service.tfl.fetch = async (url) =>
+    url.includes('490015196OF') ? new Response('error', { status: 502 }) : fetch(url);
+  world.network.arrivals[OXFORD_CIRCUS] = [];
+  world.clock.advance(5 * 60000);
+  await world.service.refresh();
+  assert.equal(world.service.lastError, null);
+  assert.equal(lastState(world, tube, 'next'), NO_ARRIVAL_MINUTES);
+  // The bus countdown goes on from its last read.
+  assert.equal(lastState(world, bus, 'next'), 8);
+});
+
+test('refreshes asked during a read share a single follow-up read', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await action(world, 'add_line', { line: 'Victoria' });
+  await create(world, 'Victoria');
+  const before = world.network.statusRequests().length;
+  await Promise.all(Array.from({ length: 10 }, () => world.service.refresh()));
+  assert.equal(world.network.statusRequests().length, before + 2);
+});
+
+test('remove a hub stop by the id of its station; status when TfL never answered', async (t) => {
+  const world = await createWorld();
+  t.after(() => world.app.stop());
+  await action(world, 'add_stop', { stop: BRIXTON_HUB });
+  assert.match(fr(await action(world, 'remove_stop', { name: '940GZZLUBXN' })), /^Brixton retiré/);
+  await action(world, 'add_line', { line: 'Victoria' });
+  world.network.fail = 503;
+  await create(world, 'Victoria');
+  const status = fr(await action(world, 'status'));
+  assert.doesNotMatch(status, /aucun appareil créé/);
+  assert.match(status, /Dernière erreur : api\.tfl\.gov\.uk: HTTP 503/);
 });

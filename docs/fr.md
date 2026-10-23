@@ -158,7 +158,7 @@ TfL](https://tfl.gov.uk/corporate/terms-and-conditions/transport-data-service).
 
 - **« TfL est injoignable (…HTTP 429 (quota)) »** : trop de requêtes sur le quota anonyme. Ajoutez
   une clé gratuite, ou choisissez une fréquence de 2 minutes.
-- **« HTTP 401/403 (app_key refused) »** : la clé est fausse ou n'est abonnée à aucun produit sur
+- **« (app_key refused) »** : la clé est fausse ou n'est abonnée à aucun produit sur
   le portail TfL. Corrigez-la, ou videz le champ.
 - **Aucun passage** : hors des heures de service, ou station National Rail seulement. Vérifiez
   l'arrêt avec _Chercher un arrêt_ et son identifiant.
