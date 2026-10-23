@@ -1,177 +1,1049 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Transport for London",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "London Tube, Overground, DLR, Elizabeth line, tram and bus: line status and next arrivals.",
+    "fr": "Métro, Overground, DLR, Elizabeth line, tram et bus de Londres : état des lignes, prochains passages",
+    "de": "Londoner U-Bahn, Overground, DLR, Elizabeth line, Tram und Bus: Linienstatus und nächste Ankünfte.",
+    "es": "Metro, Overground, DLR, Elizabeth line, tranvía y autobús de Londres: estado y próximas llegadas."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-tfl:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-tfl/main/cover.png",
+  "categories": ["services"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "How it works",
+        "fr": "Comment ça marche",
+        "de": "So funktioniert es",
+        "es": "Cómo funciona"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Follow lines and watch stops with the actions below, then create their devices in the Discover tab. Everything comes from TfL open data: no account needed, the key is optional.",
+        "fr": "Suivez des lignes et des arrêts avec les actions ci-dessous, puis créez leurs appareils dans l'onglet Découverte. Tout vient de l'open data de TfL : pas de compte, la clé est facultative.",
+        "de": "Verfolge Linien und Haltestellen mit den Aktionen unten und lege dann ihre Geräte im Tab „Entdecken“ an. Alles stammt aus den Open Data von TfL: kein Konto nötig, der Schlüssel ist optional.",
+        "es": "Siga líneas y paradas con las acciones de abajo y luego cree sus dispositivos en la pestaña Descubrir. Todo procede de los datos abiertos de TfL: sin cuenta, la clave es opcional."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-tfl/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Anleitung",
+            "es": "Guía de instalación"
+          }
+        },
+        {
+          "url": "https://api-portal.tfl.gov.uk",
+          "label": {
+            "en": "TfL API portal (free key)",
+            "fr": "Portail API TfL (clé gratuite)",
+            "de": "TfL-API-Portal (kostenloser Schlüssel)",
+            "es": "Portal API de TfL (clave gratuita)"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "label": {
+        "en": "Language of the texts",
+        "fr": "Langue des textes",
+        "de": "Sprache der Texte",
+        "es": "Idioma de los textos"
+      },
+      "description": {
+        "en": "Language of the feature names, of the statuses and of the sentences sent to your scenes. The reasons of the disruptions stay in English, as TfL writes them. Feature names are set when a device is created.",
+        "fr": "Langue des noms de fonctionnalités, des états et des phrases envoyées à vos scènes. Les motifs des perturbations restent en anglais, tels que TfL les écrit. Les noms sont fixés à la création de l'appareil.",
+        "de": "Sprache der Funktionsnamen, der Status und der Sätze für deine Szenen. Die Gründe der Störungen bleiben Englisch, wie TfL sie schreibt. Die Namen werden beim Anlegen des Geräts festgelegt.",
+        "es": "Idioma de los nombres de funciones, de los estados y de las frases enviadas a sus escenas. Los motivos de las incidencias siguen en inglés, como los escribe TfL. Los nombres se fijan al crear el dispositivo."
+      },
       "required": false,
-      "default": "celsius",
+      "default": "fr",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "refresh_interval",
+      "type": "select",
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Fréquence de mise à jour",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "How often TfL is read for your created devices: one status request, plus one request per stop point.",
+        "fr": "Fréquence de lecture de TfL pour vos appareils créés : une requête d'état, plus une par point d'arrêt.",
+        "de": "Wie oft TfL für deine angelegten Geräte gelesen wird: eine Statusanfrage plus eine pro Haltepunkt.",
+        "es": "Frecuencia de lectura de TfL para sus dispositivos creados: una petición de estado y una por punto de parada."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "60",
+      "options": [
+        {
+          "value": "60",
+          "label": {
+            "en": "1 minute",
+            "fr": "1 minute",
+            "de": "1 Minute",
+            "es": "1 minuto"
+          }
+        },
+        {
+          "value": "120",
+          "label": {
+            "en": "2 minutes",
+            "fr": "2 minutes",
+            "de": "2 Minuten",
+            "es": "2 minutos"
+          }
+        }
+      ]
+    },
+    {
+      "key": "app_key",
+      "type": "secret",
+      "label": {
+        "en": "TfL app key (optional)",
+        "fr": "Clé d'application TfL (facultative)",
+        "de": "TfL-App-Schlüssel (optional)",
+        "es": "Clave de aplicación de TfL (opcional)"
+      },
+      "description": {
+        "en": "Free from the TfL API portal: it raises the quota to 500 requests a minute. Without it the integration works on the anonymous quota.",
+        "fr": "Gratuite sur le portail API de TfL : elle porte le quota à 500 requêtes par minute. Sans elle, l'intégration fonctionne avec le quota anonyme.",
+        "de": "Kostenlos im TfL-API-Portal: Er hebt das Kontingent auf 500 Anfragen pro Minute. Ohne ihn läuft die Integration mit dem anonymen Kontingent.",
+        "es": "Gratuita en el portal API de TfL: eleva la cuota a 500 peticiones por minuto. Sin ella, la integración funciona con la cuota anónima."
+      },
+      "required": false
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "add_line",
+      "label": {
+        "en": "Follow a line",
+        "fr": "Suivre une ligne",
+        "de": "Linie verfolgen",
+        "es": "Seguir una línea"
+      },
+      "description": {
+        "en": "Adds a line (Tube, Overground, DLR, Elizabeth line, tram or bus) to the Discover tab.",
+        "fr": "Ajoute une ligne (métro, Overground, DLR, Elizabeth line, tram ou bus) à l'onglet Découverte.",
+        "de": "Fügt eine Linie (U-Bahn, Overground, DLR, Elizabeth line, Tram oder Bus) dem Tab „Entdecken“ hinzu.",
+        "es": "Añade una línea (metro, Overground, DLR, Elizabeth line, tranvía o autobús) a la pestaña Descubrir."
+      },
+      "timeout_seconds": 30,
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "key": "line",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Line name or number",
+            "fr": "Nom ou numéro de la ligne",
+            "de": "Name oder Nummer der Linie",
+            "es": "Nombre o número de la línea"
+          },
+          "placeholder": {
+            "en": "e.g. Victoria, Elizabeth line, 73",
+            "fr": "ex. Victoria, Elizabeth line, 73",
+            "de": "z. B. Victoria, Elizabeth line, 73",
+            "es": "p. ej. Victoria, Elizabeth line, 73"
+          }
         }
       ]
+    },
+    {
+      "key": "remove_line",
+      "label": {
+        "en": "Stop following a line",
+        "fr": "Ne plus suivre une ligne",
+        "de": "Linie nicht mehr verfolgen",
+        "es": "Dejar de seguir una línea"
+      },
+      "description": {
+        "en": "Removes a followed line. Its device stays in Gladys until you delete it.",
+        "fr": "Retire une ligne suivie. Son appareil reste dans Gladys jusqu'à ce que vous le supprimiez.",
+        "de": "Entfernt eine verfolgte Linie. Das Gerät bleibt in Gladys, bis du es löschst.",
+        "es": "Elimina una línea seguida. Su dispositivo permanece en Gladys hasta que lo borre."
+      },
+      "fields": [
+        {
+          "key": "line",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          },
+          "placeholder": {
+            "en": "e.g. Victoria",
+            "fr": "ex. Victoria",
+            "de": "z. B. Victoria",
+            "es": "p. ej. Victoria"
+          }
+        }
+      ]
+    },
+    {
+      "key": "search_stops",
+      "label": {
+        "en": "Find a stop",
+        "fr": "Chercher un arrêt",
+        "de": "Haltestelle suchen",
+        "es": "Buscar una parada"
+      },
+      "description": {
+        "en": "Lists the stations and bus stops matching a name, with their identifier.",
+        "fr": "Liste les stations et arrêts de bus qui correspondent à un nom, avec leur identifiant.",
+        "de": "Listet die Stationen und Bushaltestellen zu einem Namen mit ihrer Kennung auf.",
+        "es": "Muestra las estaciones y paradas de autobús que coinciden con un nombre, con su identificador."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "query",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Stop or station name",
+            "fr": "Nom de l'arrêt ou de la station",
+            "de": "Name der Haltestelle oder Station",
+            "es": "Nombre de la parada o estación"
+          },
+          "placeholder": {
+            "en": "e.g. Oxford Circus",
+            "fr": "ex. Oxford Circus",
+            "de": "z. B. Oxford Circus",
+            "es": "p. ej. Oxford Circus"
+          }
+        }
+      ]
+    },
+    {
+      "key": "add_stop",
+      "label": {
+        "en": "Add a stop",
+        "fr": "Ajouter un arrêt",
+        "de": "Haltestelle hinzufügen",
+        "es": "Añadir una parada"
+      },
+      "description": {
+        "en": "Watches the arrivals of a station or bus stop, with an optional line and direction filter.",
+        "fr": "Suit les passages d'une station ou d'un arrêt de bus, avec un filtre facultatif de ligne et de direction.",
+        "de": "Verfolgt die Ankünfte einer Station oder Bushaltestelle, optional gefiltert nach Linie und Richtung.",
+        "es": "Sigue las llegadas de una estación o parada de autobús, con un filtro opcional de línea y dirección."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "stop",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Stop name or identifier",
+            "fr": "Nom ou identifiant de l'arrêt",
+            "de": "Name oder Kennung der Haltestelle",
+            "es": "Nombre o identificador de la parada"
+          },
+          "placeholder": {
+            "en": "e.g. Oxford Circus or 940GZZLUOXC",
+            "fr": "ex. Oxford Circus ou 940GZZLUOXC",
+            "de": "z. B. Oxford Circus oder 940GZZLUOXC",
+            "es": "p. ej. Oxford Circus o 940GZZLUOXC"
+          }
+        },
+        {
+          "key": "lines",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Lines (empty: all)",
+            "fr": "Lignes (vide : toutes)",
+            "de": "Linien (leer: alle)",
+            "es": "Líneas (vacío: todas)"
+          },
+          "description": {
+            "en": "Separated by commas.",
+            "fr": "Séparées par des virgules.",
+            "de": "Durch Kommas getrennt.",
+            "es": "Separadas por comas."
+          },
+          "placeholder": {
+            "en": "e.g. Victoria, Central",
+            "fr": "ex. Victoria, Central",
+            "de": "z. B. Victoria, Central",
+            "es": "p. ej. Victoria, Central"
+          }
+        },
+        {
+          "key": "direction",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Direction (empty: all)",
+            "fr": "Direction (vide : toutes)",
+            "de": "Richtung (leer: alle)",
+            "es": "Dirección (vacío: todas)"
+          },
+          "description": {
+            "en": "Part of the destination or of the platform: Brixton, Southbound…",
+            "fr": "Partie de la destination ou du quai : Brixton, Southbound…",
+            "de": "Teil des Ziels oder des Bahnsteigs: Brixton, Southbound…",
+            "es": "Parte del destino o del andén: Brixton, Southbound…"
+          },
+          "placeholder": {
+            "en": "e.g. Southbound",
+            "fr": "ex. Southbound",
+            "de": "z. B. Southbound",
+            "es": "p. ej. Southbound"
+          }
+        }
+      ]
+    },
+    {
+      "key": "remove_stop",
+      "label": {
+        "en": "Remove a stop",
+        "fr": "Retirer un arrêt",
+        "de": "Haltestelle entfernen",
+        "es": "Eliminar una parada"
+      },
+      "description": {
+        "en": "Stops watching a stop. Its device stays in Gladys until you delete it.",
+        "fr": "Arrête de suivre un arrêt. Son appareil reste dans Gladys jusqu'à ce que vous le supprimiez.",
+        "de": "Beendet das Verfolgen einer Haltestelle. Das Gerät bleibt in Gladys, bis du es löschst.",
+        "es": "Deja de seguir una parada. Su dispositivo permanece en Gladys hasta que lo borre."
+      },
+      "fields": [
+        {
+          "key": "name",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Name shown in the status",
+            "fr": "Nom affiché dans l'état",
+            "de": "Name aus dem Status",
+            "es": "Nombre que aparece en el estado"
+          },
+          "placeholder": {
+            "en": "e.g. Oxford Circus (Victoria)",
+            "fr": "ex. Oxford Circus (Victoria)",
+            "de": "z. B. Oxford Circus (Victoria)",
+            "es": "p. ej. Oxford Circus (Victoria)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "status",
+      "label": {
+        "en": "Status",
+        "fr": "État",
+        "de": "Status",
+        "es": "Estado"
+      },
+      "description": {
+        "en": "Lists the followed lines and watched stops, and the last read of TfL.",
+        "fr": "Liste les lignes et arrêts suivis, et la dernière lecture de TfL.",
+        "de": "Listet die verfolgten Linien und Haltestellen und das letzte Lesen von TfL auf.",
+        "es": "Muestra las líneas y paradas seguidas, y la última lectura de TfL."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "arrivals",
+      "label": {
+        "en": "Next arrivals",
+        "fr": "Prochains passages",
+        "de": "Nächste Ankünfte",
+        "es": "Próximas llegadas"
+      },
+      "description": {
+        "en": "The next arrivals of a stop, coloured by the status of their line.",
+        "fr": "Les prochains passages d'un arrêt, colorés selon l'état de leur ligne.",
+        "de": "Die nächsten Ankünfte einer Haltestelle, gefärbt nach dem Status ihrer Linie.",
+        "es": "Las próximas llegadas de una parada, coloreadas según el estado de su línea."
+      },
+      "icon": "clock",
+      "settings": [
+        {
+          "key": "stop",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt",
+            "de": "Haltestelle",
+            "es": "Parada"
+          }
+        }
+      ]
+    },
+    {
+      "key": "line_status",
+      "label": {
+        "en": "TfL line status",
+        "fr": "État des lignes TfL",
+        "de": "Status der TfL-Linien",
+        "es": "Estado de líneas TfL"
+      },
+      "description": {
+        "en": "The status of every followed line, the worst first.",
+        "fr": "L'état de chaque ligne suivie, la plus perturbée en premier.",
+        "de": "Der Status jeder verfolgten Linie, die am stärksten gestörte zuerst.",
+        "es": "El estado de cada línea seguida, la más afectada primero."
+      },
+      "icon": "activity"
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "line_status_changed",
+      "label": {
+        "en": "Line status changed",
+        "fr": "État d'une ligne modifié",
+        "de": "Linienstatus geändert",
+        "es": "Estado de una línea cambiado"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A followed line is disrupted, gets worse, gets better or is back to good service.",
+        "fr": "Une ligne suivie est perturbée, s'aggrave, s'améliore ou revient à un trafic normal.",
+        "de": "Eine verfolgte Linie wird gestört, verschlechtert sich, bessert sich oder läuft wieder normal.",
+        "es": "Una línea seguida sufre una incidencia, empeora, mejora o vuelve al servicio normal."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "line",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "required": false,
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
         },
         {
-          "key": "target",
+          "key": "event",
           "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "label": {
+            "en": "Events",
+            "fr": "Événements",
+            "de": "Ereignisse",
+            "es": "Eventos"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "disrupted",
+              "label": {
+                "en": "Disrupted",
+                "fr": "Perturbée",
+                "de": "Gestört",
+                "es": "Con incidencia"
+              }
+            },
+            {
+              "value": "worsened",
+              "label": {
+                "en": "Getting worse",
+                "fr": "Aggravation",
+                "de": "Verschlechtert",
+                "es": "Empeora"
+              }
+            },
+            {
+              "value": "improved",
+              "label": {
+                "en": "Getting better",
+                "fr": "Amélioration",
+                "de": "Verbessert",
+                "es": "Mejora"
+              }
+            },
+            {
+              "value": "restored",
+              "label": {
+                "en": "Back to good service",
+                "fr": "Retour à la normale",
+                "de": "Wieder normaler Betrieb",
+                "es": "Vuelta a la normalidad"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "line_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          }
+        },
+        {
+          "key": "level",
+          "type": "number",
+          "label": {
+            "en": "Disruption level (0 to 3)",
+            "fr": "Niveau de perturbation (0 à 3)",
+            "de": "Störungsstufe (0 bis 3)",
+            "es": "Nivel de incidencia (0 a 3)"
+          }
+        },
+        {
+          "key": "previous_level",
+          "type": "number",
+          "label": {
+            "en": "Previous level",
+            "fr": "Niveau précédent",
+            "de": "Vorherige Stufe",
+            "es": "Nivel anterior"
+          }
+        },
+        {
+          "key": "reason",
+          "type": "string",
+          "label": {
+            "en": "Reason (TfL, in English)",
+            "fr": "Motif (TfL, en anglais)",
+            "de": "Grund (TfL, auf Englisch)",
+            "es": "Motivo (TfL, en inglés)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "arrival_soon",
+      "label": {
+        "en": "Time to leave",
+        "fr": "C'est l'heure de partir",
+        "de": "Zeit zu gehen",
+        "es": "Hora de salir"
+      },
+      "description": {
+        "en": "An arrival at a watched stop is the chosen number of minutes away: once per arrival.",
+        "fr": "Un passage à un arrêt suivi a lieu dans le nombre de minutes choisi : une fois par passage.",
+        "de": "Eine Ankunft an einer verfolgten Haltestelle ist die gewählte Zahl Minuten entfernt: einmal pro Ankunft.",
+        "es": "Una llegada a una parada seguida está a los minutos elegidos: una vez por llegada."
+      },
+      "fields": [
+        {
+          "key": "stop",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt",
+            "de": "Haltestelle",
+            "es": "Parada"
+          }
+        },
+        {
+          "key": "line",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Line (empty: any)",
+            "fr": "Ligne (vide : toutes)",
+            "de": "Linie (leer: alle)",
+            "es": "Línea (vacío: todas)"
+          },
+          "description": {
+            "en": "As TfL writes it: Victoria, Elizabeth line, 73.",
+            "fr": "Telle que TfL l'écrit : Victoria, Elizabeth line, 73.",
+            "de": "Wie TfL sie schreibt: Victoria, Elizabeth line, 73.",
+            "es": "Tal como la escribe TfL: Victoria, Elizabeth line, 73."
+          },
+          "placeholder": {
+            "en": "e.g. Victoria",
+            "fr": "ex. Victoria",
+            "de": "z. B. Victoria",
+            "es": "p. ej. Victoria"
+          }
+        },
+        {
+          "key": "threshold",
+          "type": "select",
+          "required": true,
+          "label": {
+            "en": "Arrives in",
+            "fr": "Passe dans",
+            "de": "Kommt in",
+            "es": "Llega en"
+          },
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "1 min",
+                "fr": "1 min",
+                "de": "1 Min.",
+                "es": "1 min"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "2 min",
+                "fr": "2 min",
+                "de": "2 Min.",
+                "es": "2 min"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "3 min",
+                "fr": "3 min",
+                "de": "3 Min.",
+                "es": "3 min"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "4 min",
+                "fr": "4 min",
+                "de": "4 Min.",
+                "es": "4 min"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "5 min",
+                "fr": "5 min",
+                "de": "5 Min.",
+                "es": "5 min"
+              }
+            },
+            {
+              "value": "7",
+              "label": {
+                "en": "7 min",
+                "fr": "7 min",
+                "de": "7 Min.",
+                "es": "7 min"
+              }
+            },
+            {
+              "value": "10",
+              "label": {
+                "en": "10 min",
+                "fr": "10 min",
+                "de": "10 Min.",
+                "es": "10 min"
+              }
+            },
+            {
+              "value": "12",
+              "label": {
+                "en": "12 min",
+                "fr": "12 min",
+                "de": "12 Min.",
+                "es": "12 min"
+              }
+            },
+            {
+              "value": "15",
+              "label": {
+                "en": "15 min",
+                "fr": "15 min",
+                "de": "15 Min.",
+                "es": "15 min"
+              }
+            },
+            {
+              "value": "20",
+              "label": {
+                "en": "20 min",
+                "fr": "20 min",
+                "de": "20 Min.",
+                "es": "20 min"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "stop_name",
+          "type": "string",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt",
+            "de": "Haltestelle",
+            "es": "Parada"
+          }
+        },
+        {
+          "key": "line",
+          "type": "string",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
+        },
+        {
+          "key": "destination",
+          "type": "string",
+          "label": {
+            "en": "Destination",
+            "fr": "Destination",
+            "de": "Ziel",
+            "es": "Destino"
+          }
+        },
+        {
+          "key": "platform",
+          "type": "string",
+          "label": {
+            "en": "Platform or stop",
+            "fr": "Quai ou arrêt",
+            "de": "Bahnsteig oder Halt",
+            "es": "Andén o parada"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to wait",
+            "fr": "Minutes d'attente",
+            "de": "Wartezeit in Minuten",
+            "es": "Minutos de espera"
+          }
+        },
+        {
+          "key": "expected_time",
+          "type": "string",
+          "label": {
+            "en": "Expected time",
+            "fr": "Heure prévue",
+            "de": "Erwartete Zeit",
+            "es": "Hora prevista"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_next_arrivals",
+      "label": {
+        "en": "Get the next arrivals",
+        "fr": "Lire les prochains passages",
+        "de": "Nächste Ankünfte abrufen",
+        "es": "Obtener las próximas llegadas"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "The next arrivals of a watched stop, as numbers and as a sentence for a message or a speaker.",
+        "fr": "Les prochains passages d'un arrêt suivi, en nombres et en phrase pour un message ou une enceinte.",
+        "de": "Die nächsten Ankünfte einer verfolgten Haltestelle, als Zahlen und als Satz für eine Nachricht oder einen Lautsprecher.",
+        "es": "Las próximas llegadas de una parada seguida, como números y como frase para un mensaje o un altavoz."
+      },
       "fields": [
         {
-          "key": "device",
+          "key": "stop",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": true,
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt",
+            "de": "Haltestelle",
+            "es": "Parada"
+          }
+        },
+        {
+          "key": "line",
+          "type": "string",
+          "required": false,
+          "label": {
+            "en": "Line (empty: any)",
+            "fr": "Ligne (vide : toutes)",
+            "de": "Linie (leer: alle)",
+            "es": "Línea (vacío: todas)"
+          },
+          "placeholder": {
+            "en": "e.g. Victoria",
+            "fr": "ex. Victoria",
+            "de": "z. B. Victoria",
+            "es": "p. ej. Victoria"
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "sentence",
+          "type": "string",
+          "label": {
+            "en": "Sentence",
+            "fr": "Phrase",
+            "de": "Satz",
+            "es": "Frase"
+          }
+        },
+        {
+          "key": "stop_name",
+          "type": "string",
+          "label": {
+            "en": "Stop",
+            "fr": "Arrêt",
+            "de": "Haltestelle",
+            "es": "Parada"
+          }
+        },
+        {
+          "key": "line",
+          "type": "string",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
+        },
+        {
+          "key": "destination",
+          "type": "string",
+          "label": {
+            "en": "Destination",
+            "fr": "Destination",
+            "de": "Ziel",
+            "es": "Destino"
+          }
+        },
+        {
+          "key": "platform",
+          "type": "string",
+          "label": {
+            "en": "Platform or stop",
+            "fr": "Quai ou arrêt",
+            "de": "Bahnsteig oder Halt",
+            "es": "Andén o parada"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to the next one",
+            "fr": "Minutes avant le prochain",
+            "de": "Minuten bis zur nächsten",
+            "es": "Minutos hasta la próxima"
+          }
+        },
+        {
+          "key": "following_minutes",
+          "type": "number",
+          "label": {
+            "en": "Minutes to the following one",
+            "fr": "Minutes avant le suivant",
+            "de": "Minuten bis zur übernächsten",
+            "es": "Minutos hasta la siguiente"
+          }
+        },
+        {
+          "key": "expected_time",
+          "type": "string",
+          "label": {
+            "en": "Expected time",
+            "fr": "Heure prévue",
+            "de": "Erwartete Zeit",
+            "es": "Hora prevista"
+          }
+        },
+        {
+          "key": "disrupted",
+          "type": "number",
+          "label": {
+            "en": "Line disrupted (1 or 0)",
+            "fr": "Ligne perturbée (1 ou 0)",
+            "de": "Linie gestört (1 oder 0)",
+            "es": "Línea con incidencia (1 o 0)"
+          }
         }
       ]
-    }
-  ],
-  "widgets": [
+    },
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "get_line_status",
+      "label": {
+        "en": "Get a line status",
+        "fr": "Lire l'état d'une ligne",
+        "de": "Linienstatus abrufen",
+        "es": "Obtener el estado de una línea"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "The status of a followed line, its disruption level and reason, and a sentence.",
+        "fr": "L'état d'une ligne suivie, son niveau de perturbation, son motif et une phrase.",
+        "de": "Der Status einer verfolgten Linie, ihre Störungsstufe, ihr Grund und ein Satz.",
+        "es": "El estado de una línea seguida, su nivel de incidencia, su motivo y una frase."
+      },
+      "fields": [
+        {
+          "key": "line",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "sentence",
+          "type": "string",
+          "label": {
+            "en": "Sentence",
+            "fr": "Phrase",
+            "de": "Satz",
+            "es": "Frase"
+          }
+        },
+        {
+          "key": "line_name",
+          "type": "string",
+          "label": {
+            "en": "Line",
+            "fr": "Ligne",
+            "de": "Linie",
+            "es": "Línea"
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status",
+            "fr": "État",
+            "de": "Status",
+            "es": "Estado"
+          }
+        },
+        {
+          "key": "level",
+          "type": "number",
+          "label": {
+            "en": "Disruption level (0 to 3)",
+            "fr": "Niveau de perturbation (0 à 3)",
+            "de": "Störungsstufe (0 bis 3)",
+            "es": "Nivel de incidencia (0 a 3)"
+          }
+        },
+        {
+          "key": "level_name",
+          "type": "string",
+          "label": {
+            "en": "Level name",
+            "fr": "Nom du niveau",
+            "de": "Name der Stufe",
+            "es": "Nombre del nivel"
+          }
+        },
+        {
+          "key": "disrupted",
+          "type": "number",
+          "label": {
+            "en": "Disrupted (1 or 0)",
+            "fr": "Perturbée (1 ou 0)",
+            "de": "Gestört (1 oder 0)",
+            "es": "Con incidencia (1 o 0)"
+          }
+        },
+        {
+          "key": "reason",
+          "type": "string",
+          "label": {
+            "en": "Reason (TfL, in English)",
+            "fr": "Motif (TfL, en anglais)",
+            "de": "Grund (TfL, auf Englisch)",
+            "es": "Motivo (TfL, en inglés)"
+          }
+        }
+      ]
     }
   ]
 }

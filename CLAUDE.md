@@ -31,16 +31,23 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only: registerHandlers() then connect()
+src/app.js                        every SDK handler -> service; configuration actions
+src/service.js                    lines and stops, refresh timer, devices/states, scene triggers, actions
+src/tfl.js                        TfL Unified API client (optional app_key, never logged)
+src/transit.js                    line status -> level 0-3; stop resolution; arrivals and filters
+src/devices.js                    Gladys devices of a followed line and of a watched stop, their states
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
 src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/messages.js                   texts sent from the container (en, fr, de, es), TfL severity names
+src/store.js                      /data/watch.json (atomic, coalesced writes)
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+gladys-assistant-integration.json manifest: config, actions, widgets, scene triggers and actions
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+test/helpers/world.js             fake Gladys + fake TfL on the fixtures + manual clock + /data
+test/helpers/scenario.js          a line getting worse and arrivals crossing thresholds, staged
+test/fixtures/tfl                 real TfL answers of 23/10/2026 ~23:10 UTC (several lines disrupted)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +77,9 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, manifest texts, feature names
+  and `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -233,3 +241,37 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+# Intégration TfL (notes de développement, 24/10/2026)
+
+## API (`api.tfl.gov.uk`, open data, clé `app_key` facultative)
+
+- `/Line/{ids}/Status` (liste d'ids séparés par des virgules, lots de 20) : `lineStatuses[]` avec
+  `statusSeverity` (0 à 20, voir `/Line/Meta/Severity`), `reason`, `validityPeriods[].isNow`. **Un
+  statut annoncé pour plus tard est déjà dans la réponse** (bus 73 : travaux du 25/10 publiés le
+  15/10, `isNow: false`) : seuls `isNow: true` ou sans période comptent, sinon « Good Service ».
+- Plusieurs statuts à la fois (« Part Closure » + « Minor Delays ») : le pire mène, tous sont listés.
+- **« Service Closed » (20) chaque nuit** sur les lignes sans Night Tube : niveau 0, pas de
+  perturbation, sinon le déclencheur sonnerait tous les soirs.
+- `/Line/Mode/tube,overground,dlr,elizabeth-line,tram/Status` sert à résoudre un nom de ligne ;
+  un bus se résout par `/Line/{id}` (404 si inconnu). Overground : six lignes nommées depuis 2024.
+- `/StopPoint/Search/{q}?modes=…` : résultats `940G…` (stations), `490…` (arrêts de bus, avec
+  `towards`), `490G…` (paires d'arrêts) et `HUB…` (pôles). **`/Arrivals` ne répond rien sur un HUB
+  ni sur un 490G** : on lit leurs enfants de type station ou arrêt (`resolveStop`, 4 au plus), en
+  écartant ceux sans mode TfL (gare National Rail 910G… : pas de prévisions TfL).
+- `/StopPoint/{a,b}/Arrivals` à plusieurs ids répond **404** : une requête par point d'arrêt.
+- Prévisions : `expectedArrival`, `vehicleId` (vide sur le DLR : on prend `id`), `platformName`.
+  **Doublons** sur l'Elizabeth line (même train listé deux fois) : dédoublonnés. Horizon ~30 min,
+  ni heure théorique ni suppression : pas de retard ni d'annulation à publier.
+- La clé passe en paramètre d'URL : **aucune URL dans les journaux ni les erreurs** (seul l'hôte et
+  le code HTTP). Erreur réseau : « unreachable », sans le message brut.
+
+## Choix
+
+- Deux types d'appareils : ligne (`line:<id>`) et arrêt (`stop:<id>[-lignes][-to-direction]`).
+- Niveau 0-3 en `risk/integer` (aiguille de jauge et conditions « supérieur à ») ; `input/binary`
+  pour perturbé oui/non ; textes `text/text` sans historique.
+- Déclencheurs : `line_status_changed` (événement `disrupted|worsened|improved|restored`, filtre
+  multi_select comme gladys-ttc) et `arrival_soon` (seuils comme Entur). Mémoires en RAM : rien à
+  la première lecture après un démarrage.
+- 60 ou 120 s (pas 30 : quota anonyme partagé). Au plus 20 lignes et 10 arrêts.

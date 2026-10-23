@@ -1,61 +1,168 @@
-# Demo Devices Template
+# Transport for London
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+The status of your London lines and the next arrivals at your stops in Gladys: Tube, London
+Overground, DLR, Elizabeth line, trams and buses, in real time.
+
+The data comes from the [TfL Unified API](https://api.tfl.gov.uk), the open data of Transport for
+London: **no account needed**, and an optional free key. Powered by TfL Open Data. This
+integration is not affiliated with Transport for London.
 
 ## What you get
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+- **A device per followed line**: its status as TfL words it (“Minor delays”, “Part closure”…), a
+  disruption level from 0 to 3, a disrupted yes/no and the reason given by TfL.
+- **A device per watched stop** (a Tube, DLR, Overground, Elizabeth line or tram station, or a
+  bus stop), optionally filtered by lines and direction: minutes to the next arrival and to the
+  following one, the line and destination of the next one, and whether one of its lines is
+  disrupted.
+- **Two dashboard widgets**: the next arrivals of a stop, and the status of your followed lines.
+- **Two scene triggers**: line status changed (disrupted, getting worse, getting better, back to
+  good service) and time to leave (1 to 20 minutes before an arrival).
+- **Two scene actions**: read the next arrivals of a stop, read the status of a line, each with a
+  sentence ready to send by message or to a speaker.
+
+## Requirements
+
+- Gladys Assistant 5.1.0 or later.
+- Internet access from the Gladys host (the integration calls `api.tfl.gov.uk`).
+- Optional: a free TfL app key, from the [TfL API portal](https://api-portal.tfl.gov.uk) (sign up,
+  then subscribe to the “500 Requests per min” product). Without it the integration uses the
+  anonymous quota, enough for a few lines and stops.
+
+## Installation
+
+1. In Gladys, open **Integrations → Install from GitHub**.
+2. Paste `https://github.com/guim31/gladys-tfl` and install.
+3. Open the integration's **Configuration** tab to follow lines and stops (below).
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+### Settings
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+- **Language of the texts**: the language of the feature names (set when a device is created),
+  of the statuses and of the sentences sent to your scenes. The reasons of the disruptions stay in
+  English, as TfL publishes them.
+- **Refresh interval**: 1 minute (default) or 2 minutes.
+- **TfL app key (optional)**: raises the quota. It is never written to the logs.
 
-## Actions
+### Following a line
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+Use **Follow a line** with the name of a line: `Victoria`, `Elizabeth line`, `Hammersmith & City`,
+`DLR`, `Tram`, an Overground line (`Liberty`, `Lioness`, `Mildmay`, `Suffragette`, `Weaver`,
+`Windrush`) or a bus route number (`73`, `N29`). Then open the **Discover** tab and create the
+device.
 
-## Scenes
+### Watching a stop
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+1. **Find a stop**: type a name (`Oxford Circus`, `Brixton`). The answer lists the stations and
+   bus stops with their identifier in brackets, and the direction of a bus stop (`→ Herne Hill`).
+2. **Add a stop**: type the exact name or the identifier. Optional filters:
+   - **Lines**: the lines to keep, separated by commas (`Victoria, Central`). Empty: every line.
+   - **Direction**: a part of the destination or of the platform (`Brixton`, `Southbound`).
+3. Open the **Discover** tab and create the device.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+A station with several networks (a “hub”, such as Brixton) is read through its TfL stations;
+National Rail services do not have TfL arrivals. The same stop can be added several times with
+other filters: each set of filters is its own device.
 
-## Dashboard
+### Removing, checking the state
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+- **Stop following a line** and **Remove a stop** (with the name shown in the status) stop the
+  readings. The device stays in Gladys until you delete it.
+- **Status** lists the followed lines and watched stops, whether their device is created, the last
+  read of TfL and the last error.
+
+## Devices
+
+**Line** (`TfL · Victoria`, `TfL · Bus 73`):
+
+| Feature          | Value                                                        |
+| ---------------- | ------------------------------------------------------------ |
+| Status           | the status in words, “Minor delays”, “Part closure + Minor…” |
+| Disruption level | 0 good service, 1 minor, 2 severe or partial, 3 suspended    |
+| Disruption       | 1 when the level is above 0, with history                    |
+| Reason           | the reason given by TfL (English), or “No disruption”        |
+
+**Stop** (`TfL · Oxford Circus (Victoria · → Southbound)`):
+
+| Feature              | Value                                                               |
+| -------------------- | ------------------------------------------------------------------- |
+| Next arrival         | minutes to wait (1440 when no arrival is announced)                 |
+| Following arrival    | minutes to the arrival after it                                     |
+| Line and destination | “Victoria → Walthamstow Central”                                    |
+| Disruption           | 1 when one of the lines of the stop (or of its filter) is disrupted |
+
+The night closure of the Tube (“Service closed”) is not a disruption. A planned work announced for
+later is not a disruption until it starts.
+
+## Dashboard widgets
+
+- **Next arrivals**: pick a stop. One row per arrival (“Victoria → Brixton”, “07:45 · 3 min ·
+  Platform 6”), green when the line runs normally, orange when slightly disrupted, red when
+  severely; the reason of a disruption on top.
+- **TfL line status**: every followed line with a created device, the most disrupted first,
+  coloured the same way, with the first reason on top.
+
+## Scene triggers
+
+- **Line status changed**: a followed line is disrupted, gets worse, gets better or is back to
+  good service. Filters: the line (empty: any) and the events. Variables: line, event, status,
+  level, previous level, reason.
+- **Time to leave**: an arrival at a watched stop is the chosen number of minutes away (1 to 20).
+  Once per arrival and threshold. Filters: stop, line (as TfL writes it: `Victoria`, `73`),
+  threshold. Variables: stop, line, destination, platform, minutes, expected time.
+
+Nothing fires at the first read after a start: what was already there is not news.
+
+## Scene actions
+
+- **Get the next arrivals**: for a stop (and optionally a line), the minutes to the next and
+  following arrivals, the line, destination, platform, expected time, whether a line is disrupted
+  (1 or 0), and a sentence: “Victoria to Brixton at Oxford Circus: in 3 and 7 min”.
+- **Get a line status**: the status, level (0 to 3), its name, disrupted (1 or 0), the reason, and
+  a sentence: “Victoria: Minor delays. Minor delays due to train cancellations.”
+
+## Scene examples
+
+- **Morning commute**: at 7:30 on weekdays, _Get a line status_ for the Northern line, then
+  _Continue only if_ `disrupted` = 1, then send the sentence by Telegram.
+- **Leave now**: trigger _Time to leave_ on your bus stop, threshold 5 minutes, then flash a light
+  and say “Your bus is 5 minutes away” on a speaker.
+- **Back to normal**: trigger _Line status changed_ on the Elizabeth line with the event “Back to
+  good service”, then send a message.
+
+## Data, refresh and quotas
+
+Every minute (or two), the integration reads, for the created devices only: one status request for
+every line involved (followed lines and lines of the watched stops), then one arrivals request per
+stop point (a station is one stop point, a hub up to four). TfL predicts arrivals about 30 minutes
+ahead. Up to 20 lines and 10 stops.
+
+TfL asks for attribution (“Powered by TfL Open Data”) and limits the requests per key; anonymous
+use is limited harder. With many stops, add a free app key. See the
+[TfL transport data terms](https://tfl.gov.uk/corporate/terms-and-conditions/transport-data-service).
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **“TfL cannot be reached (…HTTP 429 (quota))”**: too many requests on the anonymous quota. Add a
+  free app key, or choose a 2-minute interval.
+- **“HTTP 401/403 (app_key refused)”**: the key is wrong or not subscribed to a product on the TfL
+  portal. Fix it, or empty the field.
+- **No arrival**: outside service hours, or a National Rail only station. Check the stop with
+  _Find a stop_ and its identifier.
+- **The countdown stays at 1440**: no arrival is announced by TfL right now.
+- More details: set `LOG_LEVEL=debug` on the container.
+
+## Limits
+
+- Developed outside London against the real TfL API, without daily use there: feedback welcome.
+- Feature names are set when the device is created.
+- No delay nor cancellation per train: TfL publishes predicted times only.
+- The reasons of the disruptions are in English, as TfL publishes them.
+- National Rail services at shared stations are not covered.
+
+## Credits
+
+Powered by TfL Open Data. Contains OS data © Crown copyright and database rights. Inspired by
+the Home Assistant “London Underground” integration (Apache 2.0) and by the Entur and TTC
+integrations for Gladys.
