@@ -1,0 +1,22 @@
+{
+  "id": "490000031E",
+  "naptanId": "490000031E",
+  "commonName": "Brixton Station",
+  "stopType": "NaptanPublicBusCoachTram",
+  "modes": ["bus"],
+  "indicator": "Stop L",
+  "stopLetter": "L",
+  "lines": [
+    {
+      "id": "322",
+      "name": "322"
+    }
+  ],
+  "lineModeGroups": [
+    {
+      "modeName": "bus",
+      "lineIdentifier": ["322"]
+    }
+  ],
+  "children": []
+}

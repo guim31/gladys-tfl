@@ -1,0 +1,69 @@
+{
+  "id": "HUBBRX",
+  "naptanId": "HUBBRX",
+  "commonName": "Brixton",
+  "stopType": "TransportInterchange",
+  "modes": ["bus", "national-rail", "tube"],
+  "lines": [
+    {
+      "id": "southeastern",
+      "name": "Southeastern"
+    },
+    {
+      "id": "victoria",
+      "name": "Victoria"
+    }
+  ],
+  "lineModeGroups": [
+    {
+      "modeName": "national-rail",
+      "lineIdentifier": ["southeastern"]
+    },
+    {
+      "modeName": "tube",
+      "lineIdentifier": ["victoria"]
+    }
+  ],
+  "children": [
+    {
+      "id": "910GBRIXTON",
+      "naptanId": "910GBRIXTON",
+      "commonName": "Brixton Rail Station",
+      "stopType": "NaptanRailStation",
+      "modes": ["national-rail"],
+      "lines": [
+        {
+          "id": "southeastern",
+          "name": "Southeastern"
+        }
+      ],
+      "lineModeGroups": [
+        {
+          "modeName": "national-rail",
+          "lineIdentifier": ["southeastern"]
+        }
+      ],
+      "children": []
+    },
+    {
+      "id": "940GZZLUBXN",
+      "naptanId": "940GZZLUBXN",
+      "commonName": "Brixton Underground Station",
+      "stopType": "NaptanMetroStation",
+      "modes": ["tube"],
+      "lines": [
+        {
+          "id": "victoria",
+          "name": "Victoria"
+        }
+      ],
+      "lineModeGroups": [
+        {
+          "modeName": "tube",
+          "lineIdentifier": ["victoria"]
+        }
+      ],
+      "children": []
+    }
+  ]
+}

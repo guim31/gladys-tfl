@@ -1,0 +1,6 @@
+{
+  "$type": "Tfl.Api.Presentation.Entities.SearchResponse, Tfl.Api.Presentation.Entities",
+  "query": "zzyzx",
+  "total": 0,
+  "matches": []
+}

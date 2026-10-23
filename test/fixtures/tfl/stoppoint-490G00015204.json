@@ -1,0 +1,107 @@
+{
+  "id": "490G00015204",
+  "naptanId": "490G00015204",
+  "commonName": "Oxford Circus Station  / John Lewis",
+  "stopType": "NaptanOnstreetBusCoachStopPair",
+  "modes": ["bus"],
+  "lines": [
+    {
+      "id": "139",
+      "name": "139"
+    },
+    {
+      "id": "390",
+      "name": "390"
+    },
+    {
+      "id": "7",
+      "name": "7"
+    },
+    {
+      "id": "94",
+      "name": "94"
+    },
+    {
+      "id": "98",
+      "name": "98"
+    },
+    {
+      "id": "n113",
+      "name": "N113"
+    },
+    {
+      "id": "n207",
+      "name": "N207"
+    },
+    {
+      "id": "n7",
+      "name": "N7"
+    },
+    {
+      "id": "n98",
+      "name": "N98"
+    }
+  ],
+  "lineModeGroups": [
+    {
+      "modeName": "bus",
+      "lineIdentifier": ["139", "390", "7", "94", "98", "n113", "n207", "n7", "n98"]
+    }
+  ],
+  "children": [
+    {
+      "id": "490015196OF",
+      "naptanId": "490015196OF",
+      "commonName": "Oxford Circus Station  / John Lewis",
+      "stopType": "NaptanPublicBusCoachTram",
+      "modes": ["bus"],
+      "indicator": "Stop OF",
+      "stopLetter": "OF",
+      "lines": [
+        {
+          "id": "139",
+          "name": "139"
+        },
+        {
+          "id": "390",
+          "name": "390"
+        },
+        {
+          "id": "7",
+          "name": "7"
+        },
+        {
+          "id": "94",
+          "name": "94"
+        },
+        {
+          "id": "98",
+          "name": "98"
+        },
+        {
+          "id": "n113",
+          "name": "N113"
+        },
+        {
+          "id": "n207",
+          "name": "N207"
+        },
+        {
+          "id": "n7",
+          "name": "N7"
+        },
+        {
+          "id": "n98",
+          "name": "N98"
+        }
+      ],
+      "lineModeGroups": [
+        {
+          "modeName": "bus",
+          "lineIdentifier": ["139", "390", "7", "94", "98", "n113", "n207", "n7", "n98"]
+        }
+      ],
+      "children": []
+    }
+  ]
+}

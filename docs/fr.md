@@ -1,67 +1,181 @@
-# Template de démonstration
+# Transport for London
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+L'état de vos lignes londoniennes et les prochains passages à vos arrêts dans Gladys : métro
+(Tube), London Overground, DLR, Elizabeth line, trams et bus, en temps réel.
+
+Les données viennent de l'[API Unified de TfL](https://api.tfl.gov.uk), l'open data de Transport
+for London : **pas de compte**, et une clé gratuite facultative. Powered by TfL Open Data. Cette
+intégration n'est pas affiliée à Transport for London.
 
 ## Ce que vous obtenez
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+- **Un appareil par ligne suivie** : son état tel que TfL le formule (« Retards légers »,
+  « Fermeture partielle »…), un niveau de perturbation de 0 à 3, une perturbation oui/non et le
+  motif donné par TfL.
+- **Un appareil par arrêt suivi** (une station de métro, DLR, Overground, Elizabeth line ou tram,
+  ou un arrêt de bus), avec un filtre facultatif de lignes et de direction : minutes avant le
+  prochain passage et le suivant, ligne et destination du prochain, et si l'une de ses lignes est
+  perturbée.
+- **Deux widgets** : les prochains passages d'un arrêt, et l'état de vos lignes suivies.
+- **Deux déclencheurs de scène** : état d'une ligne modifié (perturbée, aggravation, amélioration,
+  retour à la normale) et c'est l'heure de partir (1 à 20 minutes avant un passage).
+- **Deux actions de scène** : lire les prochains passages d'un arrêt, lire l'état d'une ligne,
+  chacune avec une phrase prête à envoyer par message ou sur une enceinte.
+
+## Prérequis
+
+- Gladys Assistant 5.1.0 ou plus récent.
+- Un accès à Internet depuis la machine Gladys (l'intégration appelle `api.tfl.gov.uk`).
+- Facultatif : une clé d'application TfL gratuite, sur le [portail API de
+  TfL](https://api-portal.tfl.gov.uk) (créez un compte, puis abonnez-vous au produit « 500
+  Requests per min »). Sans elle, l'intégration utilise le quota anonyme, suffisant pour quelques
+  lignes et arrêts.
+
+## Installation
+
+1. Dans Gladys, ouvrez **Intégrations → Installer depuis GitHub**.
+2. Collez `https://github.com/guim31/gladys-tfl` et installez.
+3. Ouvrez l'onglet **Configuration** de l'intégration pour suivre des lignes et des arrêts
+   (ci-dessous).
 
 ## Configuration
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+### Réglages
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+- **Langue des textes** : langue des noms de fonctionnalités (fixés à la création d'un appareil),
+  des états et des phrases envoyées à vos scènes. Les motifs des perturbations restent en anglais,
+  tels que TfL les publie.
+- **Fréquence de mise à jour** : 1 minute (par défaut) ou 2 minutes.
+- **Clé d'application TfL (facultative)** : relève le quota. Elle n'est jamais écrite dans les
+  logs.
 
-## Actions
+### Suivre une ligne
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+Utilisez **Suivre une ligne** avec le nom d'une ligne : `Victoria`, `Elizabeth line`,
+`Hammersmith & City`, `DLR`, `Tram`, une ligne Overground (`Liberty`, `Lioness`, `Mildmay`,
+`Suffragette`, `Weaver`, `Windrush`) ou un numéro de bus (`73`, `N29`). Ouvrez ensuite l'onglet
+**Découverte** et créez l'appareil.
 
-## Scènes
+### Suivre un arrêt
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+1. **Chercher un arrêt** : saisissez un nom (`Oxford Circus`, `Brixton`). La réponse liste les
+   stations et arrêts de bus avec leur identifiant entre crochets, et la direction d'un arrêt de
+   bus (`→ Herne Hill`).
+2. **Ajouter un arrêt** : saisissez le nom exact ou l'identifiant. Filtres facultatifs :
+   - **Lignes** : les lignes à garder, séparées par des virgules (`Victoria, Central`). Vide :
+     toutes.
+   - **Direction** : une partie de la destination ou du quai (`Brixton`, `Southbound`).
+3. Ouvrez l'onglet **Découverte** et créez l'appareil.
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+Une station à plusieurs réseaux (un « hub », comme Brixton) est lue par ses stations TfL ; les
+trains National Rail n'ont pas de passages TfL. Un même arrêt peut être ajouté plusieurs fois avec
+d'autres filtres : chaque jeu de filtres est un appareil.
 
-## Tableau de bord
+### Retirer, consulter l'état
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+- **Ne plus suivre une ligne** et **Retirer un arrêt** (avec le nom affiché dans l'état) arrêtent
+  les lectures. L'appareil reste dans Gladys jusqu'à ce que vous le supprimiez.
+- **État** liste les lignes et arrêts suivis, si leur appareil est créé, la dernière lecture de
+  TfL et la dernière erreur.
+
+## Appareils
+
+**Ligne** (`TfL · Victoria`, `TfL · Bus 73`) :
+
+| Fonctionnalité         | Valeur                                                               |
+| ---------------------- | -------------------------------------------------------------------- |
+| État                   | l'état en clair, « Retards légers », « Fermeture partielle + … »     |
+| Niveau de perturbation | 0 trafic normal, 1 mineure, 2 importante ou partielle, 3 interrompue |
+| Perturbation           | 1 quand le niveau dépasse 0, avec historique                         |
+| Motif                  | le motif donné par TfL (en anglais), ou « Aucune perturbation »      |
+
+**Arrêt** (`TfL · Oxford Circus (Victoria · → Southbound)`) :
+
+| Fonctionnalité       | Valeur                                                        |
+| -------------------- | ------------------------------------------------------------- |
+| Prochain passage     | minutes d'attente (1440 quand aucun passage n'est annoncé)    |
+| Passage suivant      | minutes avant le passage d'après                              |
+| Ligne et destination | « Victoria → Walthamstow Central »                            |
+| Perturbation         | 1 quand une ligne de l'arrêt (ou de son filtre) est perturbée |
+
+La fermeture nocturne du métro (« Service terminé ») n'est pas une perturbation. Des travaux
+annoncés pour plus tard ne sont pas une perturbation avant d'avoir commencé.
+
+## Widgets
+
+- **Prochains passages** : choisissez un arrêt. Une ligne par passage (« Victoria → Brixton »,
+  « 07:45 · 3 min · Platform 6 »), verte quand la ligne circule normalement, orange en cas de
+  perturbation mineure, rouge si elle est importante ; le motif d'une perturbation en tête.
+- **État des lignes TfL** : chaque ligne suivie dont l'appareil est créé, la plus perturbée en
+  premier, avec les mêmes couleurs et le premier motif en tête.
+
+## Déclencheurs de scène
+
+- **État d'une ligne modifié** : une ligne suivie est perturbée, s'aggrave, s'améliore ou revient
+  à un trafic normal. Filtres : la ligne (vide : toutes) et les événements. Variables : ligne,
+  événement, état, niveau, niveau précédent, motif.
+- **C'est l'heure de partir** : un passage à un arrêt suivi a lieu dans le nombre de minutes
+  choisi (1 à 20). Une fois par passage et par seuil. Filtres : arrêt, ligne (telle que TfL
+  l'écrit : `Victoria`, `73`), seuil. Variables : arrêt, ligne, destination, quai, minutes, heure
+  prévue.
+
+Rien ne se déclenche à la première lecture après un démarrage : ce qui était déjà là n'est pas une
+nouvelle.
+
+## Actions de scène
+
+- **Lire les prochains passages** : pour un arrêt (et éventuellement une ligne), les minutes avant
+  le prochain passage et le suivant, la ligne, la destination, le quai, l'heure prévue, si une
+  ligne est perturbée (1 ou 0), et une phrase : « Victoria vers Brixton à Oxford Circus : dans 3 et
+  7 min ».
+- **Lire l'état d'une ligne** : l'état, le niveau (0 à 3), son nom, perturbée (1 ou 0), le motif,
+  et une phrase : « Victoria : Retards légers. Minor delays due to train cancellations. »
+
+## Exemples de scènes
+
+- **Trajet du matin** : à 7 h 30 en semaine, _Lire l'état d'une ligne_ pour la Northern line, puis
+  _Continuer seulement si_ `disrupted` = 1, puis envoyer la phrase par Telegram.
+- **Il faut partir** : déclencheur _C'est l'heure de partir_ sur votre arrêt de bus, seuil
+  5 minutes, puis faire clignoter une lampe et dire « Ton bus passe dans 5 minutes » sur une
+  enceinte.
+- **Retour à la normale** : déclencheur _État d'une ligne modifié_ sur l'Elizabeth line avec
+  l'événement « Retour à la normale », puis envoyer un message.
+
+## Données, mise à jour et quotas
+
+Chaque minute (ou toutes les deux), l'intégration lit, pour les appareils créés seulement : une
+requête d'état pour toutes les lignes concernées (lignes suivies et lignes des arrêts suivis),
+puis une requête de passages par point d'arrêt (une station est un point d'arrêt, un hub jusqu'à
+quatre). TfL prévoit les passages une trentaine de minutes à l'avance. Jusqu'à 20 lignes et 10
+arrêts.
+
+TfL demande d'être cité (« Powered by TfL Open Data ») et limite les requêtes par clé ; l'usage
+anonyme est plus limité. Avec beaucoup d'arrêts, ajoutez une clé gratuite. Voir les [conditions
+des données de transport de
+TfL](https://tfl.gov.uk/corporate/terms-and-conditions/transport-data-service).
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **« TfL est injoignable (…HTTP 429 (quota)) »** : trop de requêtes sur le quota anonyme. Ajoutez
+  une clé gratuite, ou choisissez une fréquence de 2 minutes.
+- **« (app_key refused) »** : la clé est fausse ou n'est abonnée à aucun produit sur
+  le portail TfL. Corrigez-la, ou videz le champ.
+- **Aucun passage** : hors des heures de service, ou station National Rail seulement. Vérifiez
+  l'arrêt avec _Chercher un arrêt_ et son identifiant.
+- **Le compte à rebours reste à 1440** : TfL n'annonce aucun passage pour le moment.
+- Plus de détails : réglez `LOG_LEVEL=debug` sur le conteneur.
+
+## Limites
+
+- Développée hors de Londres sur la vraie API de TfL, sans usage quotidien sur place : vos retours
+  sont les bienvenus.
+- Les noms des fonctionnalités sont fixés à la création de l'appareil.
+- Pas de retard ni de suppression par train : TfL ne publie que des heures prévues.
+- Les motifs des perturbations sont en anglais, tels que TfL les publie.
+- Les trains National Rail des gares partagées ne sont pas couverts.
+
+## Crédits
+
+Powered by TfL Open Data. Contains OS data © Crown copyright and database rights. Inspirée de
+l'intégration Home Assistant « London Underground » (Apache 2.0) et des intégrations Entur et TTC
+pour Gladys.

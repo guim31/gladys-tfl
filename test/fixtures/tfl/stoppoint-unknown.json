@@ -1,0 +1,9 @@
+{
+  "$type": "Tfl.Api.Presentation.Entities.ApiError, Tfl.Api.Presentation.Entities",
+  "timestampUtc": "2026-10-23T23:10:44.6349815Z",
+  "exceptionType": "EntityNotFoundException",
+  "httpStatusCode": 404,
+  "httpStatus": "NotFound",
+  "relativeUri": "/StopPoint/NOPE123",
+  "message": "The following stop point is not recognised: NOPE123"
+}

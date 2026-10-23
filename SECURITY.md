@@ -30,6 +30,14 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+The integration needs no account. Its only secret is the optional TfL app
+key, kept by Gladys in the integration configuration: it is sent to TfL in
+the query string of each request and never written to the logs nor to the
+error messages. The integration stores under `/data` a single file,
+`watch.json`: the lines you follow and the stops you watch (with their
+filters). Its only network traffic is outbound HTTPS to `api.tfl.gov.uk`;
+every request has a timeout.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the TfL services the integration reads.

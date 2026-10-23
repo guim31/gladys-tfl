@@ -1,0 +1,28 @@
+{
+  "id": "940GZZLUOXC",
+  "naptanId": "940GZZLUOXC",
+  "commonName": "Oxford Circus Underground Station",
+  "stopType": "NaptanMetroStation",
+  "modes": ["tube"],
+  "lines": [
+    {
+      "id": "bakerloo",
+      "name": "Bakerloo"
+    },
+    {
+      "id": "central",
+      "name": "Central"
+    },
+    {
+      "id": "victoria",
+      "name": "Victoria"
+    }
+  ],
+  "lineModeGroups": [
+    {
+      "modeName": "tube",
+      "lineIdentifier": ["bakerloo", "central", "victoria"]
+    }
+  ],
+  "children": []
+}

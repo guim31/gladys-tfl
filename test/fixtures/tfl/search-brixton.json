@@ -1,0 +1,183 @@
+{
+  "$type": "Tfl.Api.Presentation.Entities.SearchResponse, Tfl.Api.Presentation.Entities",
+  "query": "brixton",
+  "total": 16,
+  "matches": [
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "modes": ["bus", "tube", "national-rail"],
+      "zone": "2",
+      "id": "HUBBRX",
+      "name": "Brixton",
+      "lat": 51.462961,
+      "lon": -0.114531
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031E",
+      "towards": "Herne Hill",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031E",
+      "name": "Brixton Station",
+      "lat": 51.46297,
+      "lon": -0.11359
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031N",
+      "towards": "Clapham Park Or Streatham",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031N",
+      "name": "Brixton Station",
+      "lat": 51.46203,
+      "lon": -0.11523
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031P",
+      "towards": "Streatham Hill",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031P",
+      "name": "Brixton Station",
+      "lat": 51.46198,
+      "lon": -0.11522
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031Q",
+      "towards": "Herne Hill Or Tulse Hill",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031Q",
+      "name": "Brixton Station",
+      "lat": 51.46168,
+      "lon": -0.11536
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031R",
+      "towards": "Kennington Oval",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031R",
+      "name": "Brixton Station",
+      "lat": 51.46242,
+      "lon": -0.11534
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031S",
+      "towards": "Elephant & Castle",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031S",
+      "name": "Brixton Station",
+      "lat": 51.46214,
+      "lon": -0.11528
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031T",
+      "towards": "Stockwell Or Loughborough Junction",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031T",
+      "name": "Brixton Station",
+      "lat": 51.46197,
+      "lon": -0.11538
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1000031",
+      "topMostParentId": "490000031W",
+      "towards": "Clapham North",
+      "modes": ["bus"],
+      "zone": "2",
+      "id": "490000031W",
+      "name": "Brixton Station",
+      "lat": 51.46305,
+      "lon": -0.1144
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1004362",
+      "topMostParentId": "490G00004362",
+      "modes": ["bus"],
+      "id": "490G00004362",
+      "name": "Brixton Water Lane",
+      "lat": 51.45634,
+      "lon": -0.11833
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1007526",
+      "topMostParentId": "490G00007526",
+      "modes": ["bus"],
+      "id": "490G00007526",
+      "name": "Brixton Academy",
+      "lat": 51.46524,
+      "lon": -0.11518
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1008544",
+      "topMostParentId": "490G00008544",
+      "modes": ["bus"],
+      "id": "490G00008544",
+      "name": "Jebb Avenue / Brixton Prison",
+      "lat": 51.45221,
+      "lon": -0.1212
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1014794",
+      "topMostParentId": "490G00014794",
+      "modes": ["bus"],
+      "id": "490G00014794",
+      "name": "Brixton Station Road",
+      "lat": 51.46421,
+      "lon": -0.10988
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1015275",
+      "topMostParentId": "490G00015275",
+      "modes": ["bus"],
+      "id": "490G00015275",
+      "name": "Brixton Water Lane",
+      "lat": 51.45518,
+      "lon": -0.11257
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1004361",
+      "topMostParentId": "490G000426",
+      "modes": ["bus"],
+      "id": "490G000426",
+      "name": "Gresham Road / Brixton Police Station",
+      "lat": 51.46488,
+      "lon": -0.11356
+    },
+    {
+      "$type": "Tfl.Api.Presentation.Entities.MatchedStop, Tfl.Api.Presentation.Entities",
+      "icsId": "1007523",
+      "topMostParentId": "490G000549",
+      "modes": ["bus"],
+      "id": "490G000549",
+      "name": "Brixton Road / Brixton Police Station",
+      "lat": 51.46539,
+      "lon": -0.11372
+    }
+  ]
+}
