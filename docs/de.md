@@ -26,7 +26,7 @@ Data. Diese Integration steht in keiner Verbindung zu Transport for London.
 
 ## Voraussetzungen
 
-- Gladys Assistant 5.1.0 oder neuer.
+- Gladys Assistant 5.3.0 oder neuer.
 - Internetzugang vom Gladys-Rechner (die Integration ruft `api.tfl.gov.uk` auf).
 - Optional: ein kostenloser TfL-App-Schlüssel aus dem [TfL-API-Portal](https://api-portal.tfl.gov.uk)
   (registrieren, dann das Produkt „500 Requests per min“ abonnieren). Ohne ihn nutzt die
