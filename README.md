@@ -29,7 +29,7 @@ The user documentation is in [`docs/en.md`](docs/en.md) ([fr](docs/fr.md), [de](
 
 ## Requirements
 
-- Gladys Assistant 5.1.0 or later, with internet access.
+- Gladys Assistant 5.3.0 or later, with internet access.
 - Optional: a free app key from the [TfL API portal](https://api-portal.tfl.gov.uk).
 
 ## Installation
