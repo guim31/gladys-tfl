@@ -8,8 +8,8 @@
     "de": "Londoner U-Bahn, Overground, DLR, Elizabeth line, Tram und Bus: Linienstatus und nächste Ankünfte.",
     "es": "Metro, Overground, DLR, Elizabeth line, tranvía y autobús de Londres: estado y próximas llegadas."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/guim31/gladys-tfl:1.0.0",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/guim31/gladys-tfl:1.0.1",
   "gladys_version": ">=5.3.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-tfl/main/cover.png",
   "categories": ["services"],

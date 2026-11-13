@@ -1,6 +1,6 @@
 {
   "name": "gladys-tfl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Transport for London line status and next arrivals (Tube, Overground, DLR, Elizabeth line, tram, bus) in Gladys Assistant.",
   "type": "module",
